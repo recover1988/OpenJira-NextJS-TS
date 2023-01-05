@@ -13,7 +13,7 @@ interface Props {
 
 export const EntryList: FC<Props> = ({ status }) => {
 
-    const { entries } = useContext(EntriesContext)
+    const { entries, updateEntry } = useContext(EntriesContext)
 
     const { isDragging, endDragging } = useContext(UIContext)
     //el useMemo necesita una funcion que devuelve un valor y lo guarda y en el array esta la dependencia que hace que se vuelva a ejecutar la funcion para obtener el nuevo valor a memorizar
@@ -24,8 +24,13 @@ export const EntryList: FC<Props> = ({ status }) => {
     }
 
     const onDropEntry = (event: DragEvent<HTMLDivElement>) => {
+
         const id = event.dataTransfer.getData('text')
-        console.log(id)
+
+        const entry = entries.find(e => e._id === id)!
+        entry.status = status
+        updateEntry(entry)
+        endDragging()
     }
 
     return (
