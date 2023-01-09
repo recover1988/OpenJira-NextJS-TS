@@ -4,7 +4,7 @@ import { Entry } from "../interfaces";
 export interface IEntry extends Entry {
 }
 
-mongoose.set('strictQuery',true)
+mongoose.set('strictQuery', true)
 
 const entrySchema = new Schema({
     description: { type: String, required: true },
@@ -13,8 +13,9 @@ const entrySchema = new Schema({
         type: String,
         enum: {
             values: ['pending', 'in-progress', 'finished'],
-            message: '{VALUE} no es un estado permitido'
-        }
+            message: '{VALUE} no es un estado permitido',
+        }, 
+        default: 'pending',
     }
 })
 
