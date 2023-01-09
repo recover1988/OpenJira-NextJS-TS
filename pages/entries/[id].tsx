@@ -5,15 +5,27 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
 import { Layout } from "../../components/layouts"
 import { EntryStatus } from '../../interfaces';
-import { useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent, useMemo, FC } from 'react';
+
+import { GetServerSideProps } from 'next'
+import { isValidObjectId } from 'mongoose';
 
 const validStatus: EntryStatus[] = ['pending', 'in-progress', 'finished']
 
-export const EntryPage = () => {
+interface Props {
+    
+}
+
+
+
+
+export const EntryPage: FC<Props> = (props) => {
 
     const [inputValue, setInputValue] = useState('')
     const [status, setStatus] = useState<EntryStatus>('pending')
     const [touched, setTouched] = useState(false)
+
+    const isNotValid = useMemo(() => inputValue.length <= 0 && touched, [inputValue, touched])
 
 
     const onInputValueChanged = (event: ChangeEvent<HTMLInputElement>) => {
@@ -24,8 +36,8 @@ export const EntryPage = () => {
         setStatus(event.target.value as EntryStatus)
     }
 
-    const onSave =()=>{
-        
+    const onSave = () => {
+
     }
     return (
         <Layout title="... ... ...">
@@ -54,7 +66,10 @@ export const EntryPage = () => {
                                     multiline
                                     label='Nueva entrada'
                                     value={inputValue}
+                                    onBlur={() => setTouched(true)}
                                     onChange={onInputValueChanged}
+                                    helperText={isNotValid && 'Ingrese un valor'}
+                                    error={isNotValid}
                                 />
 
                                 <FormControl>
@@ -85,6 +100,7 @@ export const EntryPage = () => {
                                     variant='contained'
                                     fullWidth
                                     onClick={onSave}
+                                    disabled={inputValue.length <= 0}
                                 >
                                     Save
                                 </Button>
@@ -110,4 +126,30 @@ export const EntryPage = () => {
             </>
         </Layout>
     )
+}
+
+
+
+// You should use getServerSideProps when:
+// - Only if you need to pre-render a page whose data must be fetched at request time
+
+
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+
+    const { id } = params as { id: string }
+
+if(!isValidObjectId(id)){
+    return{
+        redirect:{
+            destination:'/',
+            permanent:false,
+        }
+    }
+}
+
+    return {
+        props: {
+            id
+        }
+    }
 }
