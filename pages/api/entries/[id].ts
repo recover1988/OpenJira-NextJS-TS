@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import mongoose from 'mongoose';
 import { db } from '../../../database';
 import { Entry, IEntry } from '../../../models';
+import { stat } from 'fs';
 
 type Data =
     | { message: string }
@@ -35,8 +36,23 @@ const updateEntry = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
         description = entryToUpdate.description,
         status = entryToUpdate.status
     } = req.body
-    const updatedEntry = await Entry.findByIdAndUpdate(id, { description, status }, { runValidators: true, new: true })
 
+try {
+    const updatedEntry = await Entry.findByIdAndUpdate(id, { description, status }, { runValidators: true, new: true })
+    await db.disconnect()
     res.status(200).json(updatedEntry!)
+    
+} catch (error) {
+    console.log({error})
+    await db.disconnect()
+    res.status(400).json({message:JSON.stringify(error)})
+    // si conoce el error podemos ser mas especificos podemos poner en message: error.errors.status.message y esto nos daria un mensaje
+    // pero abria que ver para cada caso si es posible
+}
+
+    // entryToUpdate.description=description
+    // entryToUpdate.status=status
+    // await entryToUpdate.save()
+
 
 }
