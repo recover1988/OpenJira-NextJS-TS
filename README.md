@@ -26,3 +26,12 @@ Llamar a
 ```
 http://localhost:3000/api/seed
 ```
+
+## Para este proyecto use las siguientes tecnologias:
+```
+Typescript
+NextJS
+Mongoose
+Docker
+MaterialUI
+```
