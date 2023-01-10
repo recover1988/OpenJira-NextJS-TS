@@ -8,20 +8,23 @@ import '@fontsource/roboto/700.css'
 
 import { UIProvider } from '../context/ui'
 import { EntriesProvider } from '../context/entries';
+import { SnackbarProvider } from 'notistack';
 
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
 import { lightTheme, darkTheme } from '../themes'
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <EntriesProvider>
-      <UIProvider>
-        <ThemeProvider theme={darkTheme}>
-          <CssBaseline />
-          <Component {...pageProps} />
+    <SnackbarProvider maxSnack={3}>
+      <EntriesProvider>
+        <UIProvider>
+          <ThemeProvider theme={darkTheme}>
+            <CssBaseline />
+            <Component {...pageProps} />
 
-        </ThemeProvider>
-      </UIProvider>
-    </EntriesProvider>
+          </ThemeProvider>
+        </UIProvider>
+      </EntriesProvider>
+    </SnackbarProvider>
   )
 }

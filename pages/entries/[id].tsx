@@ -5,10 +5,12 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
 import { Layout } from "../../components/layouts"
 import { Entry, EntryStatus } from '../../interfaces';
-import { useState, ChangeEvent, useMemo, FC } from 'react';
+import { useState, ChangeEvent, useMemo, FC, useContext } from 'react';
 
 import { GetServerSideProps } from 'next'
 import { dbEntries } from '../../database';
+import { EntriesContext } from '../../context/entries';
+import { dateFunctions } from '../../utils';
 
 const validStatus: EntryStatus[] = ['pending', 'in-progress', 'finished']
 
@@ -20,6 +22,8 @@ interface Props {
 
 
 export const EntryPage: FC<Props> = ({ entry }) => {
+
+    const { updateEntry } = useContext(EntriesContext)
 
     const [inputValue, setInputValue] = useState(entry.description)
     const [status, setStatus] = useState<EntryStatus>(entry.status)
@@ -37,7 +41,13 @@ export const EntryPage: FC<Props> = ({ entry }) => {
     }
 
     const onSave = () => {
-
+        if (inputValue.trim().length === 0) return
+        const updatedEntry: Entry = {
+            ...entry,
+            status,
+            description: inputValue
+        }
+        updateEntry(updatedEntry, true)
     }
     return (
         <Layout title={inputValue.substring(0, 10) + '...'} >
@@ -54,7 +64,7 @@ export const EntryPage: FC<Props> = ({ entry }) => {
                         <Card>
                             <CardHeader
                                 title={`Entrada: `}
-                                subheader={`Creada hace: ${entry.createdAt} minutos`}
+                                subheader={`Creada ${dateFunctions.getFormatDistanceToNow(entry.createdAt)}`}
                             />
 
                             <CardContent>
