@@ -1,4 +1,13 @@
 # Next.Js OpenJira App
+```
+El proyecto es una aplicacion para organizar tareas en 3 tiempos:
+Pendiente
+En Progreso
+Terminado
+Se puede modificar las tareas, y ademas se pueden mover al estado que se desee.
+```
+
+
 Para correr localmente, se necesita la base de datos
 ```
 docker-compose up -d
