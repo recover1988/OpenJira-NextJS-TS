@@ -4,25 +4,25 @@ import DataSaverOnOutlinedIcon from '@mui/icons-material/DataSaverOnOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
 import { Layout } from "../../components/layouts"
-import { EntryStatus } from '../../interfaces';
+import { Entry, EntryStatus } from '../../interfaces';
 import { useState, ChangeEvent, useMemo, FC } from 'react';
 
 import { GetServerSideProps } from 'next'
-import { isValidObjectId } from 'mongoose';
+import { dbEntries } from '../../database';
 
 const validStatus: EntryStatus[] = ['pending', 'in-progress', 'finished']
 
 interface Props {
-    
+    entry: Entry
 }
 
 
 
 
-export const EntryPage: FC<Props> = (props) => {
+export const EntryPage: FC<Props> = ({ entry }) => {
 
-    const [inputValue, setInputValue] = useState('')
-    const [status, setStatus] = useState<EntryStatus>('pending')
+    const [inputValue, setInputValue] = useState(entry.description)
+    const [status, setStatus] = useState<EntryStatus>(entry.status)
     const [touched, setTouched] = useState(false)
 
     const isNotValid = useMemo(() => inputValue.length <= 0 && touched, [inputValue, touched])
@@ -40,7 +40,7 @@ export const EntryPage: FC<Props> = (props) => {
 
     }
     return (
-        <Layout title="... ... ...">
+        <Layout title={inputValue.substring(0, 10) + '...'} >
             <>
                 <Grid
                     container
@@ -53,8 +53,8 @@ export const EntryPage: FC<Props> = (props) => {
                     >
                         <Card>
                             <CardHeader
-                                title={`Entrada: ${inputValue}`}
-                                subheader={`Creada hace:.... minutos`}
+                                title={`Entrada: `}
+                                subheader={`Creada hace: ${entry.createdAt} minutos`}
                             />
 
                             <CardContent>
@@ -138,18 +138,20 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
     const { id } = params as { id: string }
 
-if(!isValidObjectId(id)){
-    return{
-        redirect:{
-            destination:'/',
-            permanent:false,
+    const entry = await dbEntries.getEntryById(id)
+
+    if (!entry) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: false,
+            }
         }
     }
-}
 
     return {
         props: {
-            id
+            entry
         }
     }
 }
