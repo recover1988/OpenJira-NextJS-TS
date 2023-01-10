@@ -19,6 +19,8 @@ export default function (req: NextApiRequest, res: NextApiResponse<Data>) {
             return updateEntry(req, res)
         case 'GET':
             return getEntry(req, res)
+        case 'DELETE':
+            return deleteEntry(req, res)
 
         default:
             return res.status(400).json({ message: 'Metodo no existe' })
@@ -76,5 +78,17 @@ const getEntry = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     //     await db.disconnect()
     //     res.status(400).json({ message: JSON.stringify(error) })
     // }
+
+}
+
+const deleteEntry = async (req: NextApiRequest, res: NextApiResponse)=>{
+    const { id } = req.query
+    await db.connect()
+    const deletedEntry = await Entry.findByIdAndDelete(id)
+    await db.disconnect()
+    if (!deletedEntry) {
+        return res.status(400).json({ message: 'No hay entrada con ese ID: ' + id })
+    }
+    return res.status(200).json({message:'La entrada fue borrada'})
 
 }

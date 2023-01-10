@@ -11,6 +11,7 @@ import { GetServerSideProps } from 'next'
 import { dbEntries } from '../../database';
 import { EntriesContext } from '../../context/entries';
 import { dateFunctions } from '../../utils';
+import { useRouter } from 'next/router';
 
 const validStatus: EntryStatus[] = ['pending', 'in-progress', 'finished']
 
@@ -21,9 +22,10 @@ interface Props {
 
 
 
-export const EntryPage: FC<Props> = ({ entry }) => {
+const EntryPage: FC<Props> = ({ entry }) => {
+    const router = useRouter()
 
-    const { updateEntry } = useContext(EntriesContext)
+    const { updateEntry, deleteEntry } = useContext(EntriesContext)
 
     const [inputValue, setInputValue] = useState(entry.description)
     const [status, setStatus] = useState<EntryStatus>(entry.status)
@@ -49,76 +51,81 @@ export const EntryPage: FC<Props> = ({ entry }) => {
         }
         updateEntry(updatedEntry, true)
     }
+
+    const eraseEntry = () => {
+        deleteEntry(entry._id)
+        router.push('/')
+    }
+
+
     return (
         <Layout title={inputValue.substring(0, 10) + '...'} >
-            <>
+
+            <Grid
+                container
+                justifyContent='center'
+                sx={{ marginTop: 2 }}
+            >
                 <Grid
-                    container
-                    justifyContent='center'
-                    sx={{ marginTop: 2 }}
+                    item
+                    xs={12} sm={8} md={6}
                 >
-                    <Grid
-                        item
-                        xs={12} sm={8} md={6}
-                    >
-                        <Card>
-                            <CardHeader
-                                title={`Entrada: `}
-                                subheader={`Creada ${dateFunctions.getFormatDistanceToNow(entry.createdAt)}`}
+                    <Card>
+                        <CardHeader
+                            title={`Entrada: `}
+                            subheader={`Creada ${dateFunctions.getFormatDistanceToNow(entry.createdAt)}`}
+                        />
+
+                        <CardContent>
+                            <TextField
+                                sx={{ marginTop: 2, marginBottom: 1 }}
+                                fullWidth
+                                placeholder="Nueva entrada"
+                                autoFocus
+                                multiline
+                                label='Nueva entrada'
+                                value={inputValue}
+                                onBlur={() => setTouched(true)}
+                                onChange={onInputValueChanged}
+                                helperText={isNotValid && 'Ingrese un valor'}
+                                error={isNotValid}
                             />
 
-                            <CardContent>
-                                <TextField
-                                    sx={{ marginTop: 2, marginBottom: 1 }}
-                                    fullWidth
-                                    placeholder="Nueva entrada"
-                                    autoFocus
-                                    multiline
-                                    label='Nueva entrada'
-                                    value={inputValue}
-                                    onBlur={() => setTouched(true)}
-                                    onChange={onInputValueChanged}
-                                    helperText={isNotValid && 'Ingrese un valor'}
-                                    error={isNotValid}
-                                />
-
-                                <FormControl>
-                                    <FormLabel>Estado:</FormLabel>
-                                    <RadioGroup
-                                        row
-                                        value={status}
-                                        onChange={onStatusChanged}
-                                    >
-                                        {
-
-                                            validStatus.map(option => (
-                                                <FormControlLabel
-                                                    key={option}
-                                                    value={option}
-                                                    control={<Radio />}
-                                                    label={capitalize(option)}
-
-                                                />
-                                            ))
-                                        }
-                                    </RadioGroup>
-                                </FormControl>
-                            </CardContent>
-                            <CardActions>
-                                <Button
-                                    startIcon={<DataSaverOnOutlinedIcon />}
-                                    variant='contained'
-                                    fullWidth
-                                    onClick={onSave}
-                                    disabled={inputValue.length <= 0}
+                            <FormControl>
+                                <FormLabel>Estado:</FormLabel>
+                                <RadioGroup
+                                    row
+                                    value={status}
+                                    onChange={onStatusChanged}
                                 >
-                                    Save
-                                </Button>
-                            </CardActions>
-                        </Card>
+                                    {
 
+                                        validStatus.map(option => (
+                                            <FormControlLabel
+                                                key={option}
+                                                value={option}
+                                                control={<Radio />}
+                                                label={capitalize(option)}
 
-                    </Grid>
+                                            />
+                                        ))
+                                    }
+                                </RadioGroup>
+                            </FormControl>
+                        </CardContent>
+                        <CardActions>
+                            <Button
+                                startIcon={<DataSaverOnOutlinedIcon />}
+                                variant='contained'
+                                fullWidth
+                                onClick={onSave}
+                                disabled={inputValue.length <= 0}
+                            >
+                                Save
+                            </Button>
+                        </CardActions>
+                    </Card>
+
 
                 </Grid>
 
@@ -130,15 +137,20 @@ export const EntryPage: FC<Props> = ({ entry }) => {
                         backgroundColor: 'error.dark'
 
                     }}
+                    onClick={eraseEntry}
                 >
                     <DeleteOutlinedIcon />
                 </IconButton>
-            </>
+
+            </Grid>
+
+
+
         </Layout>
     )
 }
 
-
+export default EntryPage
 
 // You should use getServerSideProps when:
 // - Only if you need to pre-render a page whose data must be fetched at request time

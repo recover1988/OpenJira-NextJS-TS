@@ -63,6 +63,22 @@ export const EntriesProvider: FC<Props> = ({ children }) => {
 
     }
 
+    const deleteEntry = async (id: string) => {
+        try {
+            const deletedData = await entriesApi.delete(`/entries/${id}`)
+            enqueueSnackbar('Entrada Borrada', {
+                variant: 'info',
+                autoHideDuration: 1500,
+                anchorOrigin: {
+                    vertical: 'top',
+                    horizontal: 'right'
+                }
+            })
+            refreshEntries()
+        } catch (error) {
+            console.log({ error })
+        }
+    }
 
 
     const refreshEntries = async () => {
@@ -82,7 +98,8 @@ export const EntriesProvider: FC<Props> = ({ children }) => {
             ...state,
             //Methods
             addNewEntry,
-            updateEntry
+            updateEntry,
+            deleteEntry
         }} >
             {children}
         </EntriesContext.Provider>
